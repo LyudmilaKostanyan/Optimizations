@@ -10,8 +10,10 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release]
         include:
           - os: windows-latest
             c_compiler: cl
@@ -26,27 +28,100 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build and Run for O0/O1/O2/O3
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake with -O0
       shell: bash
       run: |
-        for OPT in O0 O1 O2 O3; do
-          echo "=== CONFIGURE AND BUILD with -${OPT} ==="
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          cmake -S . -B "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O0
+          cmake --build "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" --config Release
+        else
+          cmake -S . -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O0
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+        fi
 
-          BUILD_DIR="build-${OPT}"
+    - name: Run tests
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          exe_path="$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")/Release/main.exe"
+          echo "Running: $exe_path"
+          "$exe_path"
+        else
+          cd ${{ steps.strings.outputs.build-output-dir }}
+          ./main
+        fi
 
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            cmake -S . -B "$(cygpath -u "$BUILD_DIR")" -DCMAKE_BUILD_TYPE=Release -DOPT_LEVEL=${OPT}
-            cmake --build "$(cygpath -u "$BUILD_DIR")" --config Release
-            EXE_PATH="$(cygpath -u "$BUILD_DIR")/Release/main.exe"
-          else
-            cmake -S . -B $BUILD_DIR -DCMAKE_BUILD_TYPE=Release -DOPT_LEVEL=${OPT} \
-              -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
-              -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-            cmake --build $BUILD_DIR --config Release
-            EXE_PATH="${BUILD_DIR}/main"
-          fi
+    - name: Configure CMake with -O1
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          cmake -S . -B "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O1
+          cmake --build "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" --config Release
+        else
+          cmake -S . -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O1
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+        fi
 
-          echo "=== RUNNING $EXE_PATH ==="
-          "$EXE_PATH"
-          echo ""
-        done
+    - name: Run tests
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          exe_path="$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")/Release/main.exe"
+          echo "Running: $exe_path"
+          "$exe_path"
+        else
+          cd ${{ steps.strings.outputs.build-output-dir }}
+          ./main
+        fi
+
+    - name: Configure CMake with -O2
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          cmake -S . -B "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O2
+          cmake --build "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" --config Release
+        else
+          cmake -S . -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O2
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+        fi
+
+    - name: Run tests
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          exe_path="$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")/Release/main.exe"
+          echo "Running: $exe_path"
+          "$exe_path"
+        else
+          cd ${{ steps.strings.outputs.build-output-dir }}
+          ./main
+        fi
+
+    - name: Configure CMake with -O3
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          cmake -S . -B "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL==O3
+          cmake --build "$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")" --config Release
+        else
+          cmake -S . -B ${{ steps.strings.outputs.build-output-dir }} -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DOPT_LEVEL=O3
+          cmake --build ${{ steps.strings.outputs.build-output-dir }} --config Release
+        fi
+
+    - name: Run tests
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          exe_path="$(cygpath -u "${{ steps.strings.outputs.build-output-dir }}")/Release/main.exe"
+          echo "Running: $exe_path"
+          "$exe_path"
+        else
+          cd ${{ steps.strings.outputs.build-output-dir }}
+          ./main
+        fi
+
