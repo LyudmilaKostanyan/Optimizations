@@ -1,0 +1,52 @@
+name: Cross platform build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build and Run for O0/O1/O2/O3
+      shell: bash
+      run: |
+        for OPT in O0 O1 O2 O3; do
+          echo "=== CONFIGURE AND BUILD with -${OPT} ==="
+
+          BUILD_DIR="build-${OPT}"
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            cmake -S . -B "$(cygpath -u "$BUILD_DIR")" -DCMAKE_BUILD_TYPE=Release -DOPT_LEVEL=${OPT}
+            cmake --build "$(cygpath -u "$BUILD_DIR")" --config Release
+            EXE_PATH="$(cygpath -u "$BUILD_DIR")/Release/main.exe"
+          else
+            cmake -S . -B $BUILD_DIR -DCMAKE_BUILD_TYPE=Release -DOPT_LEVEL=${OPT} \
+              -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+              -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+            cmake --build $BUILD_DIR --config Release
+            EXE_PATH="${BUILD_DIR}/main"
+          fi
+
+          echo "=== RUNNING $EXE_PATH ==="
+          "$EXE_PATH"
+          echo ""
+        done
