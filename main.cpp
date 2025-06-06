@@ -44,41 +44,34 @@ int multiply(int a, int b) {
     return a * b;
 }
 
-void test_inline()
-{
-	volatile int result = 0;
-	auto start = std::chrono::high_resolution_clock::now();
+void test_inline_vs_no_inline() {
+    volatile int result = 0;
+    const int N = 100000000;
 
-	for (int i = 0; i < 100000000; ++i) {
-		result += add(i, i);
-		result += multiply(i, i);
-	}
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; ++i) {
+        result += add(i, i);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff_no_inline = end - start;
 
-	auto end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double> diff = end - start;
+    result = 0;
+    start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < N; ++i) {
+        result += add_inline(i, i);
+    }
+    end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> diff_inline = end - start;
 
-	std::cout << "Result: " << result << "\n";
-	std::cout << "Elapsed time: " << diff.count() << " seconds\n";
-
-	result = 0;
-	start = std::chrono::high_resolution_clock::now();
-
-	for (int i = 0; i < 100000000; ++i) {
-		result += add_inline(i, i);
-		result += multiply_inline(i, i);
-	}
-
-	end = std::chrono::high_resolution_clock::now();
-	diff = end - start;
-
-	std::cout << "Result with inline: " << result << "\n";
-	std::cout << "Elapsed time with inline: " << diff.count() << " seconds\n";
+    std::cout << "No inline time: " << diff_no_inline.count() << " s\n";
+    std::cout << "Inline time: " << diff_inline.count() << " s\n";
+    std::cout << "Result: " << result << "\n";
 }
 
 int main()
 {
 	test_optimization();
-	test_inline();
+	test_inline_vs_no_inline();
 	return 0;
 }
 
