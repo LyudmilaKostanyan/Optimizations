@@ -21,15 +21,20 @@ void test_optimization()
 	std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
 }
 
-inline int add_inline(int a, int b) __attribute__((always_inline));
-inline int add_inline(int a, int b) {
+#if defined(_MSC_VER)
+#define FORCE_INLINE __forceinline
+#else
+#define FORCE_INLINE inline __attribute__((always_inline))
+#endif
+
+FORCE_INLINE int add_inline(int a, int b) {
     return a + b;
 }
 
-inline int multiply_inline(int a, int b) __attribute__((always_inline));
-inline int multiply_inline(int a, int b) {
+FORCE_INLINE int multiply_inline(int a, int b) {
     return a * b;
 }
+
 
 int add(int a, int b) {
     return a + b;
