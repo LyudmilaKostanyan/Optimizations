@@ -81,59 +81,119 @@ Illustrates the importance of memory management strategies to minimize fragmenta
 
 ## Example Output
 
+### With -O0 optimization
+
 ```
 ===========================================================
                Performance Optimization Tests
 ===========================================================
 Sum: 100000000
-Elapsed time: 0.223004 seconds
+Elapsed time: 0.024648 seconds
 
 ===========================================================
                  Inline vs No Inline Tests
 ===========================================================
-No inline time: 0.345016 s
-Inline time: 0.306834 s
+No inline time: 0.155584 s
+Inline time: 0.0323902 s
 
 ===========================================================
                     Loop Unrolling Tests
 ===========================================================
-Normal copy time: 0.356863 seconds
-Unrolled copy time: 0.299532 seconds
+Normal copy time: 0.0233305 seconds
+Unrolled copy time: 0.0359275 seconds
 
 ===========================================================
               Short-String Optimization Tests
 ===========================================================
-Short string time: 0.0491335 seconds
-Long string time: 0.176474 seconds
+Short string time: 0.00754207 seconds
+Long string time: 0.0413783 seconds
 
-Short string data pointer: 0x6ffffe170020
-Long string data pointer: 0xa00026970
+Short string data pointer: 0x7fcdc617b020
+Long string data pointer: 0x55a6b286f310
 
 ===========================================================
                 Virtual vs Direct Call Tests
 ===========================================================
-Virtual call time: 0.0244169
-Direct call time: 0.023779
+Virtual call time: 9e-08
+Direct call time: 3e-08
 
 ===========================================================
                Algorithmic Optimization Tests
 ===========================================================
-Original time: 0.0524025 seconds
-Simplified time: 0.0522981 seconds
+Original time: 0.00470842 seconds
+Simplified time: 0.00446068 seconds
 
 ===========================================================
           Pointer Dereference vs Elimination Tests
 ===========================================================
-Pointer dereference time: 0.0024972 s
-Pointer elimination time: 0.0025556 s
+Pointer dereference time: 3e-08 s
+Pointer elimination time: 3e-08 s
 
 ===========================================================
       Memory Fragmentation and Cache Efficiency Tests
 ===========================================================
-Fragmentation test done in 8.38927 seconds
-Contiguous allocation test done in 2.34493 seconds
+Fragmentation test done in 3.74518 seconds
+Contiguous allocation test done in 0.157693 seconds
 ===========================================================
 ```
+
+### With -O3 optimization
+
+```
+===========================================================
+               Performance Optimization Tests
+===========================================================
+Sum: 100000000
+Elapsed time: 0.0178738 seconds
+
+===========================================================
+                 Inline vs No Inline Tests
+===========================================================
+No inline time: 0.238943 s
+Inline time: 0.241826 s
+
+===========================================================
+                    Loop Unrolling Tests
+===========================================================
+Normal copy time: 4.2e-08 seconds
+Unrolled copy time: 0 seconds
+
+===========================================================
+              Short-String Optimization Tests
+===========================================================
+Short string time: 0.00388396 seconds
+Long string time: 0.0286123 seconds
+
+Short string data pointer: 0x132600000
+Long string data pointer: 0x6000017580f0
+
+===========================================================
+                Virtual vs Direct Call Tests
+===========================================================
+Virtual call time: 0.0105096
+Direct call time: 0
+
+===========================================================
+               Algorithmic Optimization Tests
+===========================================================
+Original time: 4.1e-08 seconds
+Simplified time: 4.2e-08 seconds
+
+===========================================================
+          Pointer Dereference vs Elimination Tests
+===========================================================
+Pointer dereference time: 0 s
+Pointer elimination time: 4.2e-08 s
+
+===========================================================
+      Memory Fragmentation and Cache Efficiency Tests
+===========================================================
+Fragmentation test done in 6.08384 seconds
+Contiguous allocation test done in 0.13171 seconds
+===========================================================
+```
+
+---
 
 ## Explanation of Output
 
