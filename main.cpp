@@ -146,6 +146,48 @@ void test_sso_performance() {
 	std::cout << "Long string data pointer: " << static_cast<const void*>(long_strings[0].data()) << "\n";
 }
 
+class Base {
+public:
+	virtual int foo() const {
+		return 1;
+	}
+	virtual ~Base() = default;
+};
+
+class Derived final : public Base {
+public:
+	int foo() const override {
+		return 2;
+	}
+};
+
+void test_virtual_call(int iterations) {
+	Derived d;
+	Base* base_ptr = &d;
+	int sum = 0;
+
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < iterations; ++i)
+		sum += base_ptr->foo();
+	auto end = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<double> diff = end - start;
+	std::cout << "Virtual call time: " << diff.count() << " s, sum=" << sum << "\n";
+}
+
+void test_direct_call(int iterations) {
+	Derived d;
+	int sum = 0;
+
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < iterations; ++i)
+		sum += d.foo();
+	auto end = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<double> diff = end - start;
+	std::cout << "Direct call time: " << diff.count() << " s, sum=" << sum << "\n";
+}
+
 int main()
 {
 	std::cout << "==========================\n";
@@ -160,6 +202,10 @@ int main()
 	std::cout << "==========================\n";
 	std::cout << "SSO Performance Tests\n";
 	test_sso_performance();
+	std::cout << "==========================\n";
+	std::cout << "Virtual Call Performance Tests\n";
+	test_virtual_call(10000000);
+	test_direct_call(10000000);
 	return 0;
 }
 
