@@ -188,6 +188,39 @@ void test_direct_call(int iterations) {
 	std::cout << "Direct call time: " << diff.count() << " s, sum=" << sum << "\n";
 }
 
+
+void compute_original(const std::vector<float>& a, const std::vector<float>& b, std::vector<float>& out) {
+	size_t n = a.size();
+	for (size_t i = 0; i < n; ++i)
+		out[i] = a[i] * 2.0f + b[i] * 3.0f - 10.0f;
+}
+
+void compute_simplified(const std::vector<float>& a, const std::vector<float>& b, std::vector<float>& out) {
+	size_t n = a.size();
+	for (size_t i = 0; i < n; ++i)
+		out[i] = (a[i] * 2.0f) + (b[i] * 3.0f) - 10.0f;
+}
+
+void test_algorithmic_optimization() {
+	const size_t size = 10000000;
+	std::vector<float> a(size, 1.5f);
+	std::vector<float> b(size, 2.5f);
+	std::vector<float> out(size, 0.0f);
+
+	auto start = std::chrono::high_resolution_clock::now();
+	compute_original(a, b, out);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> time_orig = end - start;
+
+	start = std::chrono::high_resolution_clock::now();
+	compute_simplified(a, b, out);
+	end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> time_simpl = end - start;
+
+	std::cout << "Original time: " << time_orig.count() << " seconds\n";
+	std::cout << "Simplified time: " << time_simpl.count() << " seconds\n";
+}
+
 int main()
 {
 	std::cout << "==========================\n";
@@ -206,6 +239,9 @@ int main()
 	std::cout << "Virtual Call Performance Tests\n";
 	test_virtual_call(10000000);
 	test_direct_call(10000000);
+	std::cout << "==========================\n";
+	std::cout << "Algorithmic Optimization Tests\n";
+	test_algorithmic_optimization();
 	return 0;
 }
 
