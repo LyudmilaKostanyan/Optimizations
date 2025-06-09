@@ -77,10 +77,55 @@ void test_inline_vs_no_inline() {
 	std::cout << "Result: " << result << "\n";
 }
 
+void test_loop_unrolling()
+{
+	const size_t size = 100000000;
+	std::vector<int> src(size, 1);
+	std::vector<int> dst(size, 0);
+
+	auto start = std::chrono::high_resolution_clock::now();
+	for (size_t i = 0; i < size; ++i) {
+		dst[i] = src[i];
+	}
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed_normal = end - start;
+	std::cout << "Normal copy time: " << elapsed_normal.count() << " seconds\n";
+
+	std::fill(dst.begin(), dst.end(), 0);
+
+	start = std::chrono::high_resolution_clock::now();
+	size_t i = 0;
+	for (; i + 3 < size; i += 4) {
+		dst[i] = src[i];
+		dst[i + 1] = src[i + 1];
+		dst[i + 2] = src[i + 2];
+		dst[i + 3] = src[i + 3];
+	}
+	for (; i < size; ++i) {
+	    dst[i] = src[i];
+	}
+	end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed_unrolled = end - start;
+	std::cout << "Unrolled copy time: " << elapsed_unrolled.count() << " seconds\n";
+
+	long long sum = 0;
+	for (size_t j = 0; j < size; ++j) {
+		sum += dst[j];
+	}
+	std::cout << "Sum after unrolled copy: " << sum << "\n";
+}
+
 int main()
 {
+	std::cout << "==========================\n";
+	std::cout << "Performance Optimization Tests\n";
 	test_optimization();
+	std::cout << "==========================\n";
+	std::cout << "Inline vs No Inline Tests\n";
 	test_inline_vs_no_inline();
+	std::cout << "==========================\n";
+	std::cout << "Loop Unrolling Tests\n";
+	test_loop_unrolling();
 	return 0;
 }
 
