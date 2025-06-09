@@ -265,6 +265,54 @@ void test_pointer_elimination() {
 	delete[] matrix;
 }
 
+void test_fragmentation(size_t iterations, size_t max_block_size) {
+	std::vector<char*> blocks;
+	blocks.reserve(iterations);
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	for (size_t i = 0; i < iterations; ++i) {
+		size_t sz = 1 + std::rand() % max_block_size;
+		blocks.push_back(new char[sz]);
+		if (i % 10 == 0 && !blocks.empty()) {
+			size_t idx = std::rand() % blocks.size();
+			delete[] blocks[idx];
+			blocks.erase(blocks.begin() + idx);
+		}
+	}
+
+	for (auto ptr : blocks) {
+		delete[] ptr;
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	std::cout << "Fragmentation test done in "
+		<< std::chrono::duration<double>(end - start).count()
+		<< " seconds\n";
+}
+
+void test_contiguous_allocation(size_t iterations, size_t block_size) {
+	std::vector<char> memory_pool(iterations * block_size);
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	long long sum = 0;
+	for (size_t i = 0; i < iterations; ++i) {
+		char* block = memory_pool.data() + (i * block_size);
+		for (size_t j = 0; j < block_size; ++j) {
+			block[j] = static_cast<char>(j);
+			sum += block[j];
+		}
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	std::cout << "Contiguous allocation test done in "
+		<< std::chrono::duration<double>(end - start).count()
+		<< " seconds\n";
+}
+
 int main()
 {
 	std::cout << "==========================\n";
@@ -289,6 +337,10 @@ int main()
 	std::cout << "==========================\n";
 	std::cout << "Pointer Dereference vs Elimination Tests\n";
 	test_pointer_elimination();
+	std::cout << "==========================\n";
+	std::cout << "Memory Fragmentation Tests\n";
+	test_fragmentation(1000000, 1024);
+	test_contiguous_allocation(1000000, 1024);
 	return 0;
 }
 
