@@ -221,6 +221,50 @@ void test_algorithmic_optimization() {
 	std::cout << "Simplified time: " << time_simpl.count() << " seconds\n";
 }
 
+void pointer_dereference(int** matrix, int rows, int cols) {
+	long long sum = 0;
+	for (int i = 0; i < rows; ++i)
+		for (int j = 0; j < cols; ++j)
+			sum += *(*(matrix + i) + j);
+	std::cout << "Sum (pointer dereference): " << sum << "\n";
+}
+
+void pointer_elimination(int** matrix, int rows, int cols) {
+	long long sum = 0;
+	for (int i = 0; i < rows; ++i) {
+		int* row_ptr = matrix[i];
+		for (int j = 0; j < cols; ++j)
+			sum += row_ptr[j];
+	}
+	std::cout << "Sum (pointer elimination): " << sum << "\n";
+}
+
+void test_pointer_elimination() {
+	const int rows = 1000;
+	const int cols = 1000;
+
+	int** matrix = new int*[rows];
+	for (int i = 0; i < rows; ++i) {
+		matrix[i] = new int[cols];
+		for (int j = 0; j < cols; ++j)
+			matrix[i][j] = i + j;
+	}
+
+	auto start = std::chrono::high_resolution_clock::now();
+	pointer_dereference(matrix, rows, cols);
+	auto end = std::chrono::high_resolution_clock::now();
+	std::cout << "Pointer dereference time: " << std::chrono::duration<double>(end - start).count() << " s\n";
+
+	start = std::chrono::high_resolution_clock::now();
+	pointer_elimination(matrix, rows, cols);
+	end = std::chrono::high_resolution_clock::now();
+	std::cout << "Pointer elimination time: " << std::chrono::duration<double>(end - start).count() << " s\n";
+
+	for (int i = 0; i < rows; ++i)
+		delete[] matrix[i];
+	delete[] matrix;
+}
+
 int main()
 {
 	std::cout << "==========================\n";
@@ -242,6 +286,9 @@ int main()
 	std::cout << "==========================\n";
 	std::cout << "Algorithmic Optimization Tests\n";
 	test_algorithmic_optimization();
+	std::cout << "==========================\n";
+	std::cout << "Pointer Dereference vs Elimination Tests\n";
+	test_pointer_elimination();
 	return 0;
 }
 
