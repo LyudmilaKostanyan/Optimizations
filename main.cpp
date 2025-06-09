@@ -1,6 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <iomanip>
+
+void print_header(const std::string& title)
+{
+	std::cout << "\n" << std::setw(60) << std::setfill('=') << "\n";
+	std::cout << std::setfill(' ') << std::setw((60 + title.length()) / 2) << title << "\n";
+	std::cout << std::setw(60) << std::setfill('=') << "\n";
+}
 
 void test_optimization()
 {
@@ -73,7 +81,6 @@ void test_inline_vs_no_inline() {
 
 	std::cout << "No inline time: " << diff_no_inline.count() << " s\n";
 	std::cout << "Inline time: " << diff_inline.count() << " s\n";
-	std::cout << "Result: " << result << "\n";
 }
 
 void test_loop_unrolling()
@@ -110,8 +117,6 @@ void test_loop_unrolling()
 	long long sum = 0;
 	for (size_t j = 0; j < size; ++j)
 		sum += dst[j];
-
-	std::cout << "Sum after unrolled copy: " << sum << "\n";
 }
 
 void test_sso_performance() {
@@ -140,7 +145,7 @@ void test_sso_performance() {
 	std::chrono::duration<double> long_time = end - start;
 
 	std::cout << "Short string time: " << short_time.count() << " seconds\n";
-	std::cout << "Long string time: " << long_time.count() << " seconds\n";
+	std::cout << "Long string time: " << long_time.count() << " seconds\n\n";
 
 	std::cout << "Short string data pointer: " << static_cast<const void*>(short_strings[0].data()) << "\n";
 	std::cout << "Long string data pointer: " << static_cast<const void*>(long_strings[0].data()) << "\n";
@@ -172,7 +177,7 @@ void test_virtual_call(int iterations) {
 	auto end = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double> diff = end - start;
-	std::cout << "Virtual call time: " << diff.count() << " s, sum=" << sum << "\n";
+	std::cout << "Virtual call time: " << diff.count() << "\n";
 }
 
 void test_direct_call(int iterations) {
@@ -185,7 +190,7 @@ void test_direct_call(int iterations) {
 	auto end = std::chrono::high_resolution_clock::now();
 
 	std::chrono::duration<double> diff = end - start;
-	std::cout << "Direct call time: " << diff.count() << " s, sum=" << sum << "\n";
+	std::cout << "Direct call time: " << diff.count() << "\n";
 }
 
 
@@ -226,7 +231,6 @@ void pointer_dereference(int** matrix, int rows, int cols) {
 	for (int i = 0; i < rows; ++i)
 		for (int j = 0; j < cols; ++j)
 			sum += *(*(matrix + i) + j);
-	std::cout << "Sum (pointer dereference): " << sum << "\n";
 }
 
 void pointer_elimination(int** matrix, int rows, int cols) {
@@ -236,7 +240,6 @@ void pointer_elimination(int** matrix, int rows, int cols) {
 		for (int j = 0; j < cols; ++j)
 			sum += row_ptr[j];
 	}
-	std::cout << "Sum (pointer elimination): " << sum << "\n";
 }
 
 void test_pointer_elimination() {
@@ -315,32 +318,31 @@ void test_contiguous_allocation(size_t iterations, size_t block_size) {
 
 int main()
 {
-	std::cout << "==========================\n";
-	std::cout << "Performance Optimization Tests\n";
+	print_header("Performance Optimization Tests");
 	test_optimization();
-	std::cout << "==========================\n";
-	std::cout << "Inline vs No Inline Tests\n";
+
+	print_header("Inline vs No Inline Tests");
 	test_inline_vs_no_inline();
-	std::cout << "==========================\n";
-	std::cout << "Loop Unrolling Tests\n";
+
+	print_header("Loop Unrolling Tests");
 	test_loop_unrolling();
-	std::cout << "==========================\n";
-	std::cout << "SSO Performance Tests\n";
+
+	print_header("Short-String Optimization Tests");
 	test_sso_performance();
-	std::cout << "==========================\n";
-	std::cout << "Virtual Call Performance Tests\n";
+
+	print_header("Virtual vs Direct Call Tests");
 	test_virtual_call(10000000);
 	test_direct_call(10000000);
-	std::cout << "==========================\n";
-	std::cout << "Algorithmic Optimization Tests\n";
+
+	print_header("Algorithmic Optimization Tests");
 	test_algorithmic_optimization();
-	std::cout << "==========================\n";
-	std::cout << "Pointer Dereference vs Elimination Tests\n";
+
+	print_header("Pointer Dereference vs Elimination Tests");
 	test_pointer_elimination();
-	std::cout << "==========================\n";
-	std::cout << "Memory Fragmentation Tests\n";
+
+	print_header("Memory Fragmentation and Cache Efficiency Tests");
 	test_fragmentation(1000000, 1024);
 	test_contiguous_allocation(1000000, 1024);
+	std::cout << std::setw(60) << std::setfill('=') << "\n";
 	return 0;
 }
-
