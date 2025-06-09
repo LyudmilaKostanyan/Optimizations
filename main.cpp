@@ -10,9 +10,8 @@ void test_optimization()
 	auto start = std::chrono::high_resolution_clock::now();
 
 	long long sum = 0;
-	for (size_t i = 0; i < size; ++i) {
+	for (size_t i = 0; i < size; ++i)
 		sum += data[i];
-	}
 
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = end - start;
@@ -84,9 +83,9 @@ void test_loop_unrolling()
 	std::vector<int> dst(size, 0);
 
 	auto start = std::chrono::high_resolution_clock::now();
-	for (size_t i = 0; i < size; ++i) {
+	for (size_t i = 0; i < size; ++i)
 		dst[i] = src[i];
-	}
+
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed_normal = end - start;
 	std::cout << "Normal copy time: " << elapsed_normal.count() << " seconds\n";
@@ -101,18 +100,50 @@ void test_loop_unrolling()
 		dst[i + 2] = src[i + 2];
 		dst[i + 3] = src[i + 3];
 	}
-	for (; i < size; ++i) {
-	    dst[i] = src[i];
-	}
+	for (; i < size; ++i)
+		dst[i] = src[i];
+
 	end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed_unrolled = end - start;
 	std::cout << "Unrolled copy time: " << elapsed_unrolled.count() << " seconds\n";
 
 	long long sum = 0;
-	for (size_t j = 0; j < size; ++j) {
+	for (size_t j = 0; j < size; ++j)
 		sum += dst[j];
-	}
+
 	std::cout << "Sum after unrolled copy: " << sum << "\n";
+}
+
+void test_sso_performance() {
+	const int iterations = 1000000;
+
+	std::string short_str = "Hello";
+
+	std::string long_str = "This is a very long string example!";
+
+	auto start = std::chrono::high_resolution_clock::now();
+	std::vector<std::string> short_strings;
+	short_strings.reserve(iterations);
+	for (int i = 0; i < iterations; ++i)
+		short_strings.push_back(short_str);
+
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> short_time = end - start;
+
+	start = std::chrono::high_resolution_clock::now();
+	std::vector<std::string> long_strings;
+	long_strings.reserve(iterations);
+	for (int i = 0; i < iterations; ++i)
+		long_strings.push_back(long_str);
+
+	end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> long_time = end - start;
+
+	std::cout << "Short string time: " << short_time.count() << " seconds\n";
+	std::cout << "Long string time: " << long_time.count() << " seconds\n";
+
+	std::cout << "Short string data pointer: " << static_cast<const void*>(short_strings[0].data()) << "\n";
+	std::cout << "Long string data pointer: " << static_cast<const void*>(long_strings[0].data()) << "\n";
 }
 
 int main()
@@ -126,6 +157,9 @@ int main()
 	std::cout << "==========================\n";
 	std::cout << "Loop Unrolling Tests\n";
 	test_loop_unrolling();
+	std::cout << "==========================\n";
+	std::cout << "SSO Performance Tests\n";
+	test_sso_performance();
 	return 0;
 }
 
